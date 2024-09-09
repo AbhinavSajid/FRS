@@ -11,8 +11,8 @@ window.minsize(960, 540)
 
 class Gui:
     def __init__(self):
-        self.user = 'abhinav'
-        self.status = 'employer'
+        self.user = ''
+        self.status = 'employee'
 
     def add_text(self, widget, text, color):
         widget.delete("0", "end")
@@ -35,7 +35,7 @@ class Gui:
         self.background.grid_rowconfigure(2, weight=5)
         self.background.grid_rowconfigure(3, weight=5)
         # add a label
-        title_home = Label(self.background, text='Home',
+        title_home = Label(self.background, text='Attendance Tracker',
                            font=('Ariel', 40, 'bold'), bg=bg, fg=fg)
         title_home.grid(row=1, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
 
@@ -85,7 +85,7 @@ class Gui:
         else:
             log_in_button = Button(self.background, text=f"{self.user.capitalize()}",
                                    font=('Ariel', 30), bg=bg, command=self.login)
-            log_in_button.grid(row=1, column=1, sticky='nw', padx=(0, 0), pady=(0, 0))
+        log_in_button.grid(row=1, column=1, sticky='nw', padx=(0, 0), pady=(0, 0))
 
 
     def monitor(self):
@@ -103,7 +103,7 @@ class Gui:
         def attendance(user):
             self.history(user)
         attendance_button = Button(self.background, text='check attendance',
-                                   font=('Ariel', 30), bg=bg, command=lambda: attendance(user_entry.get().strip()))
+                                   font=('Ariel', 30), command=lambda: attendance(user_entry.get().strip()))
         attendance_button.grid(row=2, column=1, sticky='n', padx=(0, 0), pady=(0, 0))
 
         user_entry = Entry(self.background, font=('Ariel', 30), fg='grey')
@@ -127,7 +127,7 @@ class Gui:
                     self.monitor()
 
         leave_button = Button(self.background, text='leave requests',
-                                   font=('Ariel', 30), bg=bg, command=lambda: requests('no'))
+                                   font=('Ariel', 30), command=lambda: requests('no'))
         leave_button.grid(row=3, column=1, sticky='n', padx=(0, 0), pady=(0, 0))
 
         request_button = Button(self.background, text='no pending requests',
@@ -135,7 +135,7 @@ class Gui:
         request_button.grid(row=3, column=2, sticky='n',columnspan=2, padx=(0, 0), pady=(0, 0))
         requests()
 
-    def self_attendance(self, text1='select punch time'):
+    def self_attendance(self, text1='select punch time: '):
         for item in self.background.winfo_children():
             item.destroy()
         self.background.grid_rowconfigure(list(range(1, 5)), weight=1)
@@ -154,34 +154,34 @@ class Gui:
             self.self_attendance(text1)
 
         text_label = Label(self.background, text=f"Date: {csvio.get_date()}", font=('Ariel', 30), bg=bg)
-        text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(0, 0), pady=(0, 0))
+        text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(0, 0))
 
         if self.user != '':
             fg = 'black' if text1[0] == 's' else 'dark red'
             self.text_label = Label(self.background, text=text1, font=('Ariel', 30), bg=bg, fg=fg)
-            self.text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(0, 0), pady=(180, 0))
+            self.text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(180, 0))
 
             for row in csvio.get_employee_history(self.user):
                 if row[2] == 'in':
                     in_time = row[1]
                     text_label = Label(self.background, text=f"Your punch in time is already recorded as {in_time}",
                                        font=('Ariel', 30), bg=bg)
-                    text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(0, 0), pady=(60, 0))
+                    text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(60, 0))
                 if row[2] == 'out':
                     out_time = row[1]
                     text_label = Label(self.background, text=f"Your punch out time is already recorded as {out_time}",
                                        font=('Ariel', 30), bg=bg)
-                    text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(0, 0), pady=(120, 0))
+                    text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(120, 0))
 
-            in_button = Button(self.background, text='in', font=('Ariel', 30), bg=bg,
+            in_button = Button(self.background, text='in', font=('Ariel', 30),
                                 command=lambda: record('in'))
             in_button.grid(row=3, column=1, padx=(0, 0), pady=(0, 0))
 
-            mid_button = Button(self.background, text='mid', font=('Ariel', 30), bg=bg,
+            mid_button = Button(self.background, text='mid', font=('Ariel', 30),
                                 command=lambda: record('mid'))
             mid_button.grid(row=3, column=2, padx=(0, 0), pady=(0, 0))
 
-            out_button = Button(self.background, text='out', font=('Ariel', 30), bg=bg,
+            out_button = Button(self.background, text='out', font=('Ariel', 30),
                                 command=lambda: record('out'))
             out_button.grid(row=3, column=3, padx=(0, 0), pady=(0, 0))
 
@@ -189,9 +189,13 @@ class Gui:
         for item in self.background.winfo_children():
             item.destroy()
 
-        if (day is not None) and (os.path.exists(f"attendance/{day}-09-2024.csv")):
-            date = f"{day}-09-2024"
-            rows = csvio.get_employee_history(user, file=f"attendance/{day}-09-2024.csv")
+        if day is not None:
+            if os.path.exists(f"attendance/{day}-09-2024.csv"):
+                date = f"{day}-09-2024"
+                rows = csvio.get_employee_history(user, file=f"attendance/{day}-09-2024.csv")
+            else:
+                rows = csvio.get_employee_history(user)
+                date = csvio.get_date()
         else:
             rows = csvio.get_employee_history(user)
             date = csvio.get_date()
@@ -219,7 +223,7 @@ class Gui:
         def update(day1):
             if int(day1) < 10:
                 day1 = f"0{day1}"
-                self.history(self.user, day1)
+                self.history(user, day1)
         day_label = Label(frame, text=f"Date: {date}", font=('Ariel', 25), bg=bg)
         day_label.grid(row=1, column=1, sticky='n', padx=(0, 0), pady=(10, 0))
 
@@ -239,7 +243,13 @@ class Gui:
         heading_label_2.grid(row=2, column=3, sticky='n', padx=(0, 0), pady=(0, 0))
 
         if len(rows) == 0:
-            label = Label(frame, text=f"{user} has no attendance on this day", font=('Ariel', 20), bg=bg)
+            text1 = ''
+            rows1 = csvio.get_employee_history(user, 'leaves.csv')
+            for row1 in rows1:
+                if row1[3] == 'yes':
+                    if row1[1] == date:
+                        text1 = ' (leave)'
+            label = Label(frame, text=f"{user} has no attendance on this day{text1}", font=('Ariel', 20), bg=bg)
             label.grid(row=3, column=1, sticky='n',columnspan=3, padx=(0, 0), pady=(60, 0))
 
         i = 1
@@ -275,11 +285,13 @@ class Gui:
         reason_label = Label(self.background, text=f"Enter reason:", font=('Ariel', 30), bg=bg)
         reason_label.grid(row=3, column=1,columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
 
-        entry = Entry(self.background, font=('Ariel', 30), bg='light grey')
+        entry = Entry(self.background, font=('Ariel', 30), fg='grey')
         entry.grid(row=3, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(50, 0))
+        entry.bind("<FocusIn>", lambda a: self.add_text(entry, ' ', "black"))
+        entry.insert(0, ' provide reason')
 
         def select(raw_day, reason):
-            if reason == '':
+            if reason == '' or reason == ' provide reason':
                 self.leaves(f'please provide a reason')
             if int(raw_day) >= 10:
                 day = f"{raw_day}"
@@ -304,12 +316,26 @@ class Gui:
                 self.leaves(f'requested leave on {raw_day}{post}')
 
 
-        select_button = Button(self.background, text='request', font=('Ariel', 30), bg=bg,
+        select_button = Button(self.background, text='request', font=('Ariel', 30),
                             command=lambda: select(day_spinbox.get(), entry.get().strip()))
         select_button.grid(row=4, column=1, columnspan=2, sticky = 'n', padx=(0, 0), pady=(0, 0))
 
         note_label = Label(self.background, text=text1, font=('Ariel', 20), bg=bg)
         note_label.grid(row=5, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
+
+        allowed = []
+        allowed_str = ''
+        rows = csvio.get_employee_history(self.user, 'leaves.csv')
+        for row in rows:
+            if row[3] == 'yes':
+                allowed.append(row[1][:-5])
+                if allowed_str == '':
+                    allowed_str += row[1][:-5]
+                else:
+                    allowed_str += f", {row[1][:-5]}"
+        if len(allowed) != 0:
+            allowed_label = Label(self.background, text=f"Allowed leaves: {allowed_str}", font=('Ariel', 20), bg=bg)
+            allowed_label.grid(row=5, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
 
     def login(self, mode='login', error=''):
         for item in self.background.winfo_children():
@@ -360,6 +386,7 @@ class Gui:
                     self.login(mode, 'Incorrect password')
             else:
                 self.user = user.strip().lower()
+                self.status = csvio.get_employee_history(self.user, 'users.csv')
                 self.home_page()
 
         suggest_login = Button(self.background, text=txt, font=('Ariel', 15),
