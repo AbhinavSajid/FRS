@@ -118,15 +118,3 @@ def write_leave(name, date1, reason):
         lst = [name, date1, reason, 'undecided']
         csvwriter.writerow(lst)
 
-
-
-
-
-
-
-
-
-
-
-
-
