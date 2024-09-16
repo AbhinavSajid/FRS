@@ -1,10 +1,8 @@
 import csv
 import datetime
-import geocoder
 import os
 
-g = geocoder.ip('me')
-location = g.latlng
+location = ''
 
 current_time = datetime.datetime.now()
 if current_time.day >= 10:
@@ -23,7 +21,7 @@ def valid_user(mode, user, password):
     user = user.strip().lower()
     password = password.strip()
     if mode == 'login':
-        with open('users.csv', 'r') as csvfile:
+        with open('csv files/users.csv', 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
                 if row[0] == user:
@@ -33,7 +31,7 @@ def valid_user(mode, user, password):
                         return 'password'
             return 'user'
     else:
-        with open('users.csv', 'a+', newline='') as csvfile:
+        with open('csv files/users.csv', 'a+', newline='') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
                 if row[0] == user:
@@ -76,14 +74,16 @@ def write_row(name, timing):
 
 
 def get_employee_history(name, file=f"attendance/{date}.csv"):
-    with open(file, 'r', newline='') as csvfile:
-        rows = []
-        csvreader = csv.reader(csvfile)
-        for row in csvreader:
-            if len(row) != 0:
-                if row[0] == name:
-                    rows.append(row)
-        return rows
+    if os.path.exists(file):
+        with open(file, 'r', newline='') as csvfile:
+            rows = []
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                if len(row) != 0:
+                    if row[0] == name:
+                        rows.append(row)
+            return rows
+    return []
 
 
 def get_rows(file):
@@ -113,8 +113,7 @@ def modify_row(file_name, old_value, new_value):
 
 
 def write_leave(name, date1, reason):
-    with open("leaves.csv", 'a', newline='') as csvfile:
+    with open("csv files/leaves.csv", 'a', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         lst = [name, date1, reason, 'undecided']
         csvwriter.writerow(lst)
-
