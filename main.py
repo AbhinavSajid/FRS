@@ -30,13 +30,14 @@ class Gui:
         frame.pack(expand=True, fill=BOTH)
         frame.pack_propagate(False)
 
-        label = Label(frame, image=self.logo_image)
-        label.pack(pady=((window.winfo_screenheight()//2) - 200, 0))
+        self.logo_image_big = PhotoImage(file='images/logo_big.png')
+        label = Label(frame, image=self.logo_image_big)
+        label.pack(pady=((window.winfo_screenheight()//2) - 354, 0))
 
         def proceed():
             label.destroy()
             self.home_page()
-        label.after(250, proceed)
+        label.after(3000, proceed)
 
 
     def home_page(self):
@@ -75,7 +76,7 @@ class Gui:
                                 command=lambda: self.history(self.user))
         history_button.grid(row=2, column=2, padx=(0, 0), pady=(60, 0))
 
-        col_span = 1 if self.status == 'employer' else 2
+        col_span = 1
         if os.path.exists("images/leaves.png"):
             self.leaves_img = PhotoImage(file='images/leaves.png')
             leaves_img = Label(self.background, image=self.leaves_img, bd=0)
@@ -92,8 +93,17 @@ class Gui:
                 monitor_img.grid(row=3, column=2, columnspan=1, sticky='n', padx=(0, 0), pady=(0, 0))
 
                 monitor_button = Button(self.background, text='monitor',
-                                       font=('Ariel', 30), bg=bg, command=self.monitor)
+                                       font=('Ariel', 20), bg=bg, command=self.monitor)
                 monitor_button.grid(row=3, column=2, columnspan=1, padx=(0, 0), pady=(60, 0))
+        else:
+            if os.path.exists("images/peer.png"):
+                self.peer_img = PhotoImage(file='images/peer.png')
+                peer_img = Label(self.background, image=self.peer_img, bd=0)
+                peer_img.grid(row=3, column=2, columnspan=1, sticky='n', padx=(0, 0), pady=(0, 0))
+
+                peer_button = Button(self.background, text='peer',
+                                       font=('Ariel', 20), bg=bg, command=self.peer)
+                peer_button.grid(row=3, column=2, columnspan=1, padx=(0, 0), pady=(60, 0))
 
         if self.user == '':
             log_in_button = Button(self.background, image=self.logo_image_small,
@@ -103,6 +113,42 @@ class Gui:
                                    font=('Ariel', 20), bg=bg, command=self.departments)
         log_in_button.grid(row=1, column=1, sticky='nw', padx=(0, 0), pady=(0, 0))
 
+    def peer(self, text=''):
+        for item in self.background.winfo_children():
+            item.destroy()
+        bg = 'light yellow'
+
+        title_label = Label(self.background, text='Peer Attendance',
+                            font=('Ariel', 25, 'bold'), bg=bg)
+        title_label.grid(row=1, column=1, columnspan=2, padx=(0, 0), pady=(0, 0))
+
+
+        back_button = Button(self.background, text='back', font=('Ariel', 20), bg=bg, command=self.home_page)
+        back_button.grid(row=4, column=1, sticky='sw', pady=(0, 0))
+
+        reason_label = Label(self.background, text=f"Employee number:", font=('Ariel', 20), bg=bg)
+        reason_label.grid(row=2, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
+
+        entry = Entry(self.background, font=('Ariel', 20), fg='grey')
+        entry.grid(row=2, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(50, 0))
+        entry.bind("<FocusIn>", lambda a: self.add_text(entry, ' ', "black"))
+        entry.insert(0, ' enter employee id')
+
+        def proceed():
+            user = entry.get().strip()
+            for row in csvio.get_rows('csv files/users.csv'):
+                if row[0] == user:
+                    self.self_attendance(user=entry.get().strip())
+                    break
+            else:
+                self.peer('employee not found')
+
+
+        enter_button = Button(self.background, text='detect face', font=('Ariel', 20), bg=bg, command=proceed)
+        enter_button.grid(row=2, column=1, columnspan=2, sticky='n', pady=(100, 0))
+
+        error_label = Label(self.background, text=f"{text}", font=('Ariel', 20), bg=bg, fg='red')
+        error_label.grid(row=3, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
 
     def monitor(self):
         for item in self.background.winfo_children():
@@ -151,12 +197,15 @@ class Gui:
         request_button.grid(row=3, column=2, sticky='n',columnspan=2, padx=(0, 0), pady=(0, 0))
         requests()
 
-    def self_attendance(self, text1='select punch time: '):
+    def self_attendance(self, text1='select punch time: ', user=None):
         for item in self.background.winfo_children():
             item.destroy()
         self.background.grid_rowconfigure(list(range(1, 5)), weight=1)
         self.background.grid_columnconfigure(list(range(1, 4)), weight=1)
         bg = 'light yellow'
+        if user is None:
+            user = self.user
+        print('user', user)
 
         logo_img = Label(self.background, image=self.logo_image_small, bd=0, bg=bg)
         logo_img.grid(row=1, column=1, sticky='wn', padx=(0, 0), pady=(0, 0))
@@ -166,18 +215,18 @@ class Gui:
         title_label.grid(row=1, column=1, columnspan=3, padx=(0, 0), pady=(0, 0))
 
         def record(timing):
-            text1 = csvio.write_row(self.user, timing)
+            text1 = csvio.write_row(user, timing)
             self.self_attendance(text1)
 
         text_label = Label(self.background, text=f"Date: {csvio.get_date()}", font=('Ariel', 20), bg=bg)
         text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(0, 0))
 
-        if self.user != '':
+        if user != '':
             fg = 'black' if text1[0] == 's' else 'dark red'
             self.text_label = Label(self.background, text=text1, font=('Ariel', 20), bg=bg, fg=fg)
             self.text_label.grid(row=2, column=1, sticky='nw', columnspan=3, padx=(40, 0), pady=(180, 0))
 
-            for row in csvio.get_employee_history(self.user):
+            for row in csvio.get_employee_history(user):
                 if row[2] == 'in':
                     in_time = row[1]
                     text_label = Label(self.background, text=f"Your punch in time is already recorded as {in_time}",
@@ -477,3 +526,7 @@ class Gui:
 mygui = Gui()
 mygui.logo_page()
 window.mainloop()
+
+
+
+
