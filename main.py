@@ -36,7 +36,7 @@ class Gui:
 
         def proceed():
             label.destroy()
-            self.home_page()
+            self.departments()
         label.after(3000, proceed)
 
 
@@ -420,41 +420,68 @@ class Gui:
 
 
     def departments(self):
-        for item in self.background.winfo_children():
-            item.destroy()
-        self.background.grid_rowconfigure(list(range(1, 7)), weight=1)
-        # self.background.grid_columnconfigure(list(range(1, 2)), weight=1)
 
         bg = 'light yellow'
         fg = 'black'
+
+        self.background = Label(window, bg=bg)
+        self.background.pack(fill=BOTH, expand=True)
+
+        '''for item in self.background.winfo_children():
+            item.destroy()'''
+        self.background.grid_rowconfigure(list(range(1, 8)), weight=1)
+        self.background.grid_columnconfigure(list(range(1, 3)), weight=1)
 
         title_login = Label(self.background, text='Choose department',
                             font=('Ariel', 25, 'bold'), bg=bg, fg=fg)
         title_login.grid(row=1, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(50, 0))
 
         back_button = Button(self.background, text='back', font=('Ariel', 20), bg=bg, command=self.home_page)
-        back_button.grid(row=6, column=1, sticky='sw', pady=(0, 0))
+        back_button.grid(row=7, column=1, sticky='sw', pady=(0, 0))
+
+        if os.path.exists("images/dept1.png"):
+            attendance_img = Label(self.background, image=self.attendance_img, bd=0)
+            attendance_img.grid(row=2, column=1,sticky='n', padx=(0, 0), pady=(0, 0))
 
         dept_button = Button(self.background, text='dept1', font=('Ariel', 20), bg=bg,
                              command=lambda: self.login(dept='dept1'))
-        dept_button.grid(row=2, column=1, columnspan=2, sticky='n', pady=(0, 0))
+        dept_button.grid(row=2, column=2, columnspan=1, sticky='n', pady=(0, 0))
+
+        if os.path.exists("images/dept2.png"):
+            attendance_img = Label(self.background, image=self.attendance_img, bd=0)
+            attendance_img.grid(row=3, column=1,sticky='n', padx=(0, 0), pady=(0, 0))
 
         dept_button = Button(self.background, text='dept2', font=('Ariel', 20), bg=bg,
                              command= lambda: self.login(dept='dept2'))
-        dept_button.grid(row=3, column=1, columnspan=2, sticky='n', pady=(0, 0))
+        dept_button.grid(row=3, column=2, columnspan=1, sticky='n', pady=(0, 0))
+
+        if os.path.exists("images/dept3.png"):
+            attendance_img = Label(self.background, image=self.attendance_img, bd=0)
+            attendance_img.grid(row=4, column=1,sticky='n', padx=(0, 0), pady=(0, 0))
 
         dept_button = Button(self.background, text='dept3', font=('Ariel', 20), bg=bg,
                              command=lambda: self.login(dept='dept3'))
-        dept_button.grid(row=4, column=1, columnspan=2, sticky='n', pady=(0, 0))
+        dept_button.grid(row=4, column=2, columnspan=1, sticky='n', pady=(0, 0))
+
+        if os.path.exists("images/dept4.png"):
+            attendance_img = Label(self.background, image=self.attendance_img, bd=0)
+            attendance_img.grid(row=5, column=1,sticky='n', padx=(0, 0), pady=(0, 0))
 
         dept_button = Button(self.background, text='dept4', font=('Ariel', 20), bg=bg,
                              command=lambda: self.login(dept='dept4'))
-        dept_button.grid(row=5, column=1, columnspan=2, sticky='n', pady=(0, 0))
+        dept_button.grid(row=5, column=2, columnspan=1, sticky='n', pady=(0, 0))
+
+        if os.path.exists("images/dept5.png"):
+            attendance_img = Label(self.background, image=self.attendance_img, bd=0)
+            attendance_img.grid(row=6, column=1,sticky='n', padx=(0, 0), pady=(0, 0))
 
         dept_button = Button(self.background, text='dept5', font=('Ariel', 20), bg=bg,
                              command=lambda: self.login(dept='dept5'))
-        dept_button.grid(row=6, column=1, columnspan=2, sticky='n', pady=(0, 0))
+        dept_button.grid(row=6, column=2, columnspan=2, sticky='n', pady=(0, 0))
 
+        label = Label(self.background, text="Made by The Algorithm Army",
+                            font=('Ariel', 25, 'bold'), bg=bg, fg=fg)
+        label.grid(row=7, column=1, columnspan=2, sticky='n', padx=(0, 0), pady=(0, 0))
 
 
     def login(self,dept, mode='login', error=''):
@@ -519,9 +546,13 @@ class Gui:
                                bg=bg, relief='flat', command=lambda: self.login(alt_mode), fg='blue')
         suggest_login.grid(row=3, column=1, columnspan=2, pady=(100, 0))
 
-        login_button = Button(self.background, text=text, font=('Ariel', 25),
+        login_button = Button(self.background, text=text, font=('Ariel', 25), bg='red', fg='white',
                               command=lambda: check_login(self.user_entry.get(), self.pass_entry.get()))
         login_button.grid(row=5, column=1, columnspan=2, pady=(30, 40))
+
+        change_button = Button(self.background, text="change department", font=('Ariel', 15), bg='blue',fg='white',
+                              command=lambda: check_login(self.user_entry.get(), self.pass_entry.get()))
+        change_button.grid(row=6, column=1, columnspan=2, pady=(30, 40))
 
 mygui = Gui()
 mygui.logo_page()
